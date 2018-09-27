@@ -43,8 +43,8 @@ if(verb == 'promote'){
     // Log the user's custom claims to the console. Change nothing.
     actions.checkUser(email)
         .then((res) => {
-            console.log(`User's custom claims are:`.blue)
-            console.log(colors.bgBlue.black(res))
+            console.log(`User's custom claims are: \n`.blue)
+            console.log(colors.bgBlue.white(res))
             process.exit(0)
         })
         .catch((err) => {
@@ -66,7 +66,7 @@ if(verb == 'promote'){
         })
 
 } else if(verb == 'list'){
-
+    // LIST
     actions.listUsers()
         .then((listUsersResult)=>{
             const organisers = listUsersResult.users.filter((user)=>{
@@ -74,14 +74,13 @@ if(verb == 'promote'){
                     return user
             })
             if(organisers.length > 0){
-                console.log("Organisers are:\n".bgBlue.black)
+                console.log("Organisers are:\n".blue)
                 organisers.forEach(function(user) {
                     if(user.customClaims && user.customClaims.organiser === true)
-                        console.log(`${user.toJSON().displayName} (${user.toJSON().email} `.bgBlue.black);
+                        console.log(`${user.toJSON().displayName} (${user.toJSON().email})`.bgBlue.white);
                 })
             } else {
-                console.log("No organisers to display.".bgBlue.black)
-         
+                console.log("No organisers to display.".bgBlue.white)
             }
             process.exit(0)
         })
@@ -89,7 +88,6 @@ if(verb == 'promote'){
             console.log(colors.bgRed.black("Couldn't list organisers: ", err))
             process.exit(1)
         })
-
 } else {
     throw Error('Invalid use of user manager. Usage: npm run demote | promote | check | revoke <email>')
 }
