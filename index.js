@@ -1,19 +1,12 @@
+#!/usr/bin/env node
+
 const colors = require('colors')
-const admin = require('firebase-admin')
-const serviceAccount = require('./serviceAccountKey.json')
+const fs = require('fs')
+const actions = require('./actions')
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-})
-
-function malformed(){
-    throw Error('Invalid use of user manager. Usage: npm run demote | promote | check <email>')
-}
-
-// Stop here if the command isn't properly formed
-if (process.argv.length !== 4) {
-    malformed()
-}
+// Check if the config JSON exists and stop if it's not found
+if(!fs.existsSync('./serviceAccountKey.json'))
+    throw Error("No private key file found. Please add it to the root folder to continue.")
 
 // Deconstruct the command
 const verb = process.argv[2]
@@ -22,45 +15,33 @@ const email = process.argv[3]
 if(verb == 'promote'){
     // PROMOTE
     // Set the organiser claim to true, creating it if it doesn't exist
-    addOrganiserClaim(email)
+    actions.promoteUser(email)
         .then((res) => {
-            console.log(`User ${email} has been given organiser role`.bgGreen.black)
+            console.log(`User ${email} has been promoted to organiser role. \n\nTell them to log out and back in. `.bgGreen.black)
             process.exit(0)
         })
         .catch((err) => {
-            console.log(colors.bgRed.black('Failed to grant user organiser role: ' + err))
+            console.log(colors.bgRed.black('Failed to promote user to organiser role: ' + err))
             process.exit(1)
         })
-    async function addOrganiserClaim(email){
-        const user = await admin.auth().getUserByEmail(email)
-        if (user.customClaims && user.customClaims.admin === true) {
-            return
-        }
-        return admin.auth().setCustomUserClaims(user.uid, {
-            organiser: true,
-        })
-    }
+
 } else if(verb == 'demote'){
     // DEMOTE
     // Set the organiser claim to false if it exists
-    removeOrganiserClaim(email)
+    actions.demoteUser(email)
+        .then(actions.revokeToken(email))
         .then((res) => {
-            console.log(`User ${email} has been demoted to delegate role`.bgGreen.black)
+            console.log(`User ${email} has been demoted to delegate role and their token has been revoked.`.bgGreen.black)
             process.exit(0)
         }).catch((err) => {
             console.log(colors.bgRed.black('Failed to demote to delegate role: ' + err))
             process.exit(1)
         })
-    async function removeOrganiserClaim(email){
-        const user = await admin.auth().getUserByEmail(email)
-        return admin.auth().setCustomUserClaims(user.uid, {
-            organiser: false,
-        })
-    }
+
 } else if(verb == 'check'){
     // CHECK
     // Log the user's custom claims to the console. Change nothing.
-    checkClaims(email)
+    actions.checkUser(email)
         .then((res) => {
             console.log(`User's custom claims are:`.blue)
             console.log(colors.bgBlue.black(res))
@@ -70,31 +51,45 @@ if(verb == 'promote'){
             console.log(colors.bgRed.black('Failed to check user: ' + err))
             process.exit(1)
         })
-    async function checkClaims(email){
-        const user = await admin.auth().getUserByEmail(email)
-        return user.customClaims
-    }
+
 } else if(verb == 'revoke'){
     // REVOKE
     // Invalidate the user's session, forcing them to sign in again
-    admin.auth().getUserByEmail(email)
-        .then((user)=>{
-            admin.auth().revokeRefreshTokens(user.uid)
-                .then(() => {
-                    console.log("User's refresh token successfully revoked. They will have to sign in again.".bgGreen.black)
-                    process.exit(0)
-                })
-                .catch((err) => {
-                    console.log(colors.bgRed.black('Failed to revoke refresh token: ' + err))
-                    process.exit(1)
-                })
+    actions.revokeToken(email)
+        .then(()=>{
+            console.log("User's refresh token successfully revoked. \n\nThey will have to sign in again.".bgGreen.black)
+            process.exit(0)
         })
-        .catch((err) => {
-            console.log(colors.bgRed.black('Failed to find user: ' + err))
+        .catch((error)=>{
+            console.log(colors.bgRed.black('Failed to revoke refresh token: ' + err))
+            process.exit(1)
+        })
+
+} else if(verb == 'list'){
+
+    actions.listUsers()
+        .then((listUsersResult)=>{
+            const organisers = listUsersResult.users.filter((user)=>{
+                if(user.customClaims && user.customClaims.organiser === true)
+                    return user
+            })
+            if(organisers.length > 0){
+                console.log("Organisers are:\n".bgBlue.black)
+                organisers.forEach(function(user) {
+                    if(user.customClaims && user.customClaims.organiser === true)
+                        console.log(`${user.toJSON().displayName} (${user.toJSON().email} `.bgBlue.black);
+                })
+            } else {
+                console.log("No organisers to display.".bgBlue.black)
+         
+            }
+            process.exit(0)
+        })
+        .catch((err)=>{
+            console.log(colors.bgRed.black("Couldn't list organisers: ", err))
             process.exit(1)
         })
 
 } else {
-    malformed()
+    throw Error('Invalid use of user manager. Usage: npm run demote | promote | check | revoke <email>')
 }
-

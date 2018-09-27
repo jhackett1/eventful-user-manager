@@ -3,10 +3,11 @@ Eventful user manager
 
 Simple command line utility to manage roles of Eventful users.
 
-You can do four things:
-* **Promote** delegates to organisers (admins)
+You can do five things:
+* **Promote** delegates to organisers (aka admins)
 * **Demote** organisers back to delegates
-* **Check** a user's current role without changing it
+* **Check** a specific user's current role without changing it
+* **List** all users with the organiser role
 * **Revoke** a user's refresh token, forcing them to sign in again
 
 It uses the Firebase Admin SDK to [modify custom claims](https://firebase.google.com/docs/auth/admin/custom-claims) stored with the user.
@@ -24,14 +25,16 @@ Then, just run `npm run promote | demote | check | revoke user@email.com`, repla
 
 The utility will let you know if the attempt succeeded or not.
 
+You can also run `npm run list` without supplying an email.
+
 Things to remember
 ------------------
 
 * The user needs to have signed in once already, otherwise Firebase won't recognise the email as belonging to a user.
 
-* The user **won't immediately see or benefit from new organiser permissions**. Their token needs to be refreshed, either manually or by waiting for the token to expire and be refreshed. You should probably remind the user to sign out and back in to the app. You can also revoke their token manually by running the `revoke` command from here.
+* The user **won't immediately see or benefit from new organiser permissions**. Their token needs to be refreshed, either manually or by waiting for the token to expire. You should either tell the user to sign out and back in to the app, or revoke their token manually by running the `revoke` command from here.
 
-* Equally, when a user is demoted back down to delegate level, this will only take effect when their token expires. You can revoke their token manually with `revoke`.
+* Demoting a user automatically revokes their token at the same time.
 
 To do
 -----
@@ -39,5 +42,7 @@ To do
 1. ~~Add a command to check a user's status~~ Done!
 2. ~~Add a command to demote a user back down to delegate level~~ Done!
 3. ~~Make tokens revokable~~ Done!
-4. Add a command to list all organisers
-5. Make it globally installable?
+4. ~~Demoting a user should auto-revoke their token~~ Done!
+5. ~~Add a command to list all organisers~~ Done!
+6. Make it globally installable (in progress)
+

@@ -7,7 +7,8 @@
     "promote": "node index.js promote",
     "demote": "node index.js demote",
     "check": "node index.js check",
-    "revoke": "node index.js revoke"
+    "revoke": "node index.js revoke",
+    "list": "node index.js list"
   },
   "keywords": [],
   "author": "",
@@ -15,5 +16,8 @@
   "dependencies": {
     "colors": "^1.3.2",
     "firebase-admin": "^6.0.0"
+  },
+  "bin": {
+    "eventful": "./index.js"
   }
 }
