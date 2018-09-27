@@ -39,4 +39,5 @@ To do
 1. ~~Add a command to check a user's status~~ Done!
 2. ~~Add a command to demote a user back down to delegate level~~ Done!
 3. ~~Make tokens revokable~~ Done!
-4. Make it globally installable?
+4. Add a command to list all organisers
+5. Make it globally installable?
