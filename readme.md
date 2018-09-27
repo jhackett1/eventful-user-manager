@@ -1,5 +1,5 @@
-Eventful Promoter
-=================
+Eventful User Manager
+=====================
 
 Simple command line utility to give organiser (aka admin) permissions to Eventful users.
 
