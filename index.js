@@ -89,6 +89,10 @@ if(verb == 'promote'){
                     process.exit(1)
                 })
         })
+        .catch((err) => {
+            console.log(colors.bgRed.black('Failed to find user: ' + err))
+            process.exit(1)
+        })
 
 } else {
     malformed()
