@@ -1,7 +1,7 @@
 Eventful user manager
 =====================
 
-Simple command line utility to manager roles of Eventful users.
+Simple command line utility to manage roles of Eventful users.
 
 You can do four things:
 * **Promote** delegates to organisers (admins)
@@ -9,7 +9,7 @@ You can do four things:
 * **Check** a user's current role without changing it
 * **Revoke** a user's refresh token, forcing them to sign in again
 
-It uses the Firebase Admin SDK to [add a custom claim](https://firebase.google.com/docs/auth/admin/custom-claims) to the data stored about a user.
+It uses the Firebase Admin SDK to [modify custom claims](https://firebase.google.com/docs/auth/admin/custom-claims) stored with the user.
 
 How to use it
 ------------
